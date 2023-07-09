@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        .welcome {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .attendance-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .absen-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #428bca;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .absen-button:hover {
+            background-color: #3071a9;
+        }
+
+        .logout-link {
+            display: block;
+            margin-top: 20px;
+            color: #777;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .logout-link:hover {
+            color: #333;
+        }
+
+        .alert-container {
+            position: relative;
+            z-index: 2;
+        }
+
+        .custom-alert {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            margin: 0 auto;
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="alert-container" id="alert-container"></div>
+        <div class="welcome">Selamat Datang, {{ username }}!</div>
+        <h2 class="attendance-title">LKMM-TD FMIPA 2023</h2>
+        <button class="absen-button" id="absen-button">Absen Sekarang <i class="fas fa-check"></i></button>
+        <a href="/logout" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#absen-button').click(function() {
+                $.ajax({
+                    type: 'POST',
+                    url: '/absen',
+                    success: function(response) {
+                        if (response.error) {
+                            showAlert(response.error, 'danger');
+                        } else {
+                            showAlert(response.message, 'success');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        showAlert(xhr.responseText, 'danger');
+                    }
+                });
+            });
+
+            function showAlert(message, alertType) {
+                var alertContainer = $('#alert-container');
+                var alertHTML = '<div class="alert alert-' + alertType + ' alert-dismissible fade show" role="alert">' +
+                    message +
+                    '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+                    '<span aria-hidden="true">&times;</span>' +
+                    '</button></div>';
+                alertContainer.html(alertHTML);
+
+                setTimeout(function() {
+                    alertContainer.empty();
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

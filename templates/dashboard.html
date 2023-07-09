@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .verify-button:hover {
+            background-color: #3071a9;
+        }
+
+        .verify-button {
+            padding: 6px 12px;
+            background-color: #428bca;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-content {
+            background-color: #f2f2f2;
+            padding: 20px;
+        }
+
+        .dashboard-content h2 {
+            margin-top: 0;
+        }
+
+        .dashboard-content p {
+            margin-bottom: 20px;
+        }
+
+        .logout-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .login-data {
+            margin-top: 20px;
+        }
+
+        .login-data table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .login-data th, .login-data td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .login-data th {
+            background-color: #f2f2f2;
+        }
+
+        .add-user-form {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 4px;
+        }
+
+        .add-user-form h3 {
+            margin-top: 0;
+        }
+
+        .add-user-form label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .add-user-form input[type="text"],
+        .add-user-form input[type="password"],
+        .add-user-form select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+
+        .add-user-form button {
+            padding: 10px 20px;
+            background-color: #428bca;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .add-user-form button:hover {
+            background-color: #3071a9;
+        }
+
+        .download-button {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .download-button a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #428bca;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .download-button a:hover {
+            background-color: #3071a9;
+        }
+
+        .success-alert {
+            display: none;
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+
+        .error-alert {
+            display: none;
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.verify-button').click(function() {
+                var button = $(this);
+                var username = button.data('username');
+                var timestamp = button.data('timestamp');
+                var verified = button.data('verified') === '1' ? '0' : '1';
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/verify',
+                    data: {
+                        'username': username,
+                        'timestamp': timestamp,
+                        'verified': verified
+                    },
+                    success: function(response) {
+                        // Update the verified status in the table
+                        button.data('verified', verified);
+                        button.closest('tr').find('td:nth-child(3)').text(verified === '1' ? 'Yes' : 'No');
+                        alert(response.message);
+                    },
+                    error: function(xhr, status, error) {
+                        alert(xhr.responseJSON.error);
+                    }
+                });
+            });
+        });
+    </script>
+    <script>
+        // Function to display success message as alert
+        function showSuccessAlert(message) {
+            $('.error-alert').hide();
+            $('.success-alert').text(message);
+            $('.success-alert').fadeIn(500, function() {
+                setTimeout(function() {
+                    $('.success-alert').fadeOut(500);
+                }, 3000);
+            });
+        }
+
+        // Function to display error message as alert
+        function showErrorAlert(message) {
+            $('.success-alert').hide();
+            $('.error-alert').text(message);
+            $('.error-alert').fadeIn(500, function() {
+                setTimeout(function() {
+                    $('.error-alert').fadeOut(500);
+                }, 3000);
+            });
+        }
+
+        // Function to handle form submission
+        function submitForm() {
+            var username = $('#username').val();
+            var password = $('#password').val();
+            var role = $('#role').val();
+
+            // Make an AJAX request to add_user endpoint
+            $.ajax({
+                type: 'POST',
+                url: '/add_user',
+                data: {
+                    'username': username,
+                    'password': password,
+                    'role': role
+                },
+                success: function(response) {
+                    // Display success alert
+                    showSuccessAlert(response.message);
+                },
+                error: function(xhr, status, error) {
+                    // Display error alert
+                    showErrorAlert(xhr.responseJSON.error);
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>Data Peserta Hadir</h1>
+        </div>
+        <div class="dashboard-content">
+            <h2>Panitia Pelaksana LKMM-TD FMIPA 2023</h2>
+            <p>Berikut merupakan data yang hadir pada hari ini.</p>
+            <div class="download-button">
+                <a href="/download">Download Rekapan Data</a>
+            </div>
+        </div>
+        <div class="login-data">
+            <table>
+                <tr>
+                    <th>Username</th>
+                    <th>Login Time</th>
+                    <th>Verified</th>
+                    <th>Action</th>
+                </tr>
+                {% for data in login_data %}
+                <tr>
+                    <td>{{ data[0] }}</td>
+                    <td>{{ data[1] }}</td>
+                    <td>{{ data[2] }}</td>
+                    <td>
+                        <button class="verify-button" data-username="{{ data[0] }}" data-timestamp="{{ data[1] }}" data-verified="{{ data[2] }}">Verify</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="logout-link">
+            <a href="/logout">Logout</a>
+        </div>
+        <div class="add-user-form">
+            <h3>Tambah Pengguna</h3>
+            <form onsubmit="event.preventDefault(); submitForm();">
+                <div>
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div>
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div>
+                    <label for="role">Role:</label>
+                    <select id="role" name="role" required>
+                        <option value="0">User</option>
+                        <option value="1">Admin</option>
+                    </select>
+                </div>
+                <div>
+                    <button type="submit">Tambah Pengguna</button>
+                </div>
+                <div class="success-alert" id="success-alert"></div>
+                <div class="error-alert" id="error-alert"></div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
